@@ -1,17 +1,19 @@
 title: "Kim Sang-hyeob's Tech Blog"
+tagline: "Developer diary and tech blog; research reviews and portfolio."
 description: "Developer diary and tech blog; research reviews and portfolio."
-url: khttps://kim-sang-hyeob.github.io"
-bas""url: ""
-remote_theme: "mmistakes/minimal-mistakes@4.27.3"
-minimal_mistakes_skin: "mint"
+lang: ko
+timezone: Asia/Seoul
+url: "https://kim-sang-hyeob.github.io"
+baseurl: ""
+remote_theme: cotes2020/jekyll-theme-chirpy@v7.3.1
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
-  - jekyll-include-cache
-author:
-  name: "Kim Sang-hyeob"
-  avatar: "/assets/images/avatar.png"
-  bio: "Developer and tech enthusiast. Sharing development diaries, research reviews, and portfolio projects."
-  location: "Seoul, South Korea"
-github_username: "kim-sang-hyeob"
+github:
+  username: kim-sang-hyeob
+social:
+  name: Kim Sang-hyeob
+  links:
+    - https://github.com/kim-sang-hyeob
+toc: true

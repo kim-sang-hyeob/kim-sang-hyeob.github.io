@@ -1,8 +1,8 @@
 title: "Kim Sang-hyeob's Tech Blog"
 description: "Developer diary and tech blog; research reviews and portfolio."
-url: "https://kim-sang-hyeob.github.io"
+url: "https://kim-kang-hyeob.github.io"
 
-remremote_theme: "mmistakes/jekyll-theme-basically-basic@1.4.5"
+reremote_theme: "mmistakes/jekyll-theme-basically-basic@1.4.5"
 plugins:
   - jekyll-feed
   - jekyll-sitemap

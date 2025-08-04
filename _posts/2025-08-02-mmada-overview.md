@@ -26,3 +26,6 @@ In MMaDA, text is tokenized into discrete tokens while images are mapped to VQ t
 ## Results and significance
 
 Experiments show that MMaDA outperforms existing models on multimodal understanding tasks, image generation benchmarks and pure language benchmarks. Performance improves consistently when moving from Stage 1 to Stage 2 and Stage 3. By extending diffusion to the language domain and unifying training across modalities, MMaDA demonstrates a promising direction for future multimodal AI systems.
+
+
+<img width="1080" height="7560" alt="MMaDAㅡ" src="https://github.com/user-attachments/assets/ec536ab8-a048-43e7-b71c-7ae6bb86d4a5" />

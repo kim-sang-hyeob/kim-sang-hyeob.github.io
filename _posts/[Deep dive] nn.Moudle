@@ -1,15 +1,10 @@
 
 제목 : [Deep dive] nn.Moudle
 
-우리는 보통 pytorch 로 모델을 만들기 위해서 
-1) torch.nn.Module 을 상속 
-2) __init__() 과 forward() 를 override 한다. 
-
-그리고 학습/추론 시에 우리는 모델.forward() 와 같이 호출을 해준다. 
-
-(문맥이 이상하니까 이따 수정)
-
-하지만 정확히 nn.Module 이 여기서 어떤일을 하는지 궁금해졌다. 
+PyTorch로 모델을 만들 때 우리는 보통
+1. torch.nn.Module을 상속하고,
+2. __init__()과 forward()를 override합니다.
+여기서 멈추지 않고, nn.Module이 내부에서 정확히 무엇을 해주는지를 구조적으로 정리해보려고 합니다. 
 
 
 1) Module 호출 구조 확인하기 
@@ -23,14 +18,13 @@ class MLP(nn.Module):
     def forward(self, x):
         x = torch.relu(self.f1(x))
         return self.f2(x)
-
 MLP(x) 
 
 보통 이렇게 model 을 호출한다. 
 하지만 우리는 forward() 를 직접호출하지 않고 model(x) 이런식으로 호출한다. ( 여기서 model 은 class name 이다. )
-nn.Module 의 코드 구조를 확인해보면
+왜그럴까 ? nn.Module 의 코드 구조를 확인해보면
 
-__call__ -> _wrapped_call_impl -> (compiled 이면 그거) -> _call_impl
+__call__ -> _wrapped_call_impl ->  _call_impl
   ├─ (전/후/역전파 훅 하나도 없으면) forward(...) 바로 호출
   ├─ (있다면)
   │   1) forward_pre_hooks (전역 → 모듈 순)
@@ -41,4 +35,48 @@ __call__ -> _wrapped_call_impl -> (compiled 이면 그거) -> _call_impl
   │
   └─ 예외 발생 시: always_call=True 로 등록된 forward hook은 **예외와 별개로** 호출 시도
 
-이렇게 구성되어 있다. 즉, model(x
+이렇게 구성되어 있다. 즉, model(x) 를 call 하면 자동으로 forward() / hook 을 호출하는 것이다. 
+( __call__ 은 클래스의 인스턴스를 함수로 취급하여 인자로 사용할 수 있게 한다. ) 그렇기 떄문에 torch 에서는 forward() 를 따로 호출하지 않는다. 
+
+그렇다면 hook 이란 무엇일까 ? 
+hook 이란 forward/backward 시점에 끼어들어 값을 바꾸는 callback function 이다. 
+여기서는 4가지 경우가 있다 
+1) forward 전/후
+2) backward 전 / 후 
+이정도만 알아도 훨씬 Module 에 대한 이해가 잘 되고, 그동안 작성했던 코드에 대해서 더 명료해진거 같다. 
+
+다시 정리해보면 
+model(X) -> mdule.__call__ -> (forward + hook ) -> ( 필요시 backward hook 연결 ) 
+로 정리할 수 있겠다. 
+
+
+2) nn.Module 의 내부구조 살펴보기 
+이제 nn.Module 이 어떻게 호출되는지 . 또 왜 forward()시에 직접적으로 호출하지 않아도 되는지 알게 되었다.
+
+
++ cf. ) 
+갑자기 궁금해진게 있다. 보통 이런식으로 학습시키는데
+
+model.train()
+for x, y in loader:
+    opt.zero_grad()
+    y_hat = model(x)          # __call__ -> forward(...) (훅 포함)
+    loss = criterion(y_hat, y)
+    loss.backward()           # 여기서 그래디언트 계산 시작(모듈이 아님, 'loss 텐서'임)
+    opt.step()
+
+다시 1) module 호출로 돌아가서. 이런생각이 들었다. 아니 forward / backward 는 모델이 모르는 거 같은데 backward 시에는 gradient descent fmf 위해서 forward 시에 분명 계산값을 저장해둔다고 했는데... 
+그럼 그걸 어디서 설정하는거지 ? 라는 의문이 들었다. 
+
+nn.Module 에 self.trainig 태그가 있다고 한다. 그래서 model.train() 을 호출하면 self.trainig = True / model.eval() 을 부르면 False 가 설정된다고 하낟. 
+( 마찬가지로 dropout/batchnorm 도 이에 따라서 바뀐다 )
+
+그리고 모델안에 파라미터 (nn.Parameter) 는 앞에서 이야기 했듯이 requires_grad = True 로 되어있고 만약 추론시 속도나 메모리 이득을 보기 위해서
+
+model.eval()
+with torch.no_grad():   # 또는 torch.inference_mode()  (더 공격적으로 빠름)
+    y = model(x)        # 그래프 기록 X
+
+
+다음과 같이 with torch.no_grad() 를 설정한다. 
+

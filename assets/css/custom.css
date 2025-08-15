@@ -1,0 +1,13 @@
+/* Custom CSS to enlarge blog titles and headings for improved readability */
+
+.page__content h1 {
+  font-size: 2.4rem;
+}
+
+.page__content h2 {
+  font-size: 2.0rem;
+}
+
+.page__content h3 {
+  font-size: 1.6rem;
+}

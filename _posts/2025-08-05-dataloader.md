@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "[Deepdive] DataLoader "
+title: "[Deepdiv] DataLoader "
 date: 2025-08-05
 categories: ["Deepdive"]
 tags: [""]

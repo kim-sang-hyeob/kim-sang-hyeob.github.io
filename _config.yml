@@ -23,3 +23,9 @@ lunr:
   search_within_pages: true
 custom_css:
   - /assets/css/custom.css
+category_archive:
+  type: liquid
+  path: /categories/
+tag_archive:
+  type: liquid
+  path: /tags/

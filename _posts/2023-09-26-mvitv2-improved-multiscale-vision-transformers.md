@@ -1,4 +1,3 @@
-# Create a Markdown file replicating the user's content "as-is" and include Figure image links.
 content = """---
 layout: single
 title: " MViTv2: Improved Multiscale Vision Transformers for Classification and Detection 리뷰"

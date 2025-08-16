@@ -1,0 +1,50 @@
+name: Notion to Posts
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run without writing files (logs only)'
+        required: false
+        default: 'false'
+  schedule:
+    - cron: '0 0 * * *'  # daily 00:00 UTC
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements.txt
+
+      - name: Sync from Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          python scripts/notion_to_posts.py
+
+      - name: Commit & Push changes
+        if: ${{ success() }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add _posts assets/notion -A
+            git commit -m "chore(notion): sync posts from Notion"
+            git push
+          else
+            echo "No changes to commit."

@@ -1,0 +1,2 @@
+notion-client>=2.0.0
+notion-to-md>=2.3.0
